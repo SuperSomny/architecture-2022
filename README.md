@@ -1,23 +1,22 @@
-## hardware
-### util
-工具类，实现了寄存器和存储器
+## 1 实现指令
+实现一条指令的步骤如下：
+- 写一个类(class)继承`instruction/instruction.py`中的`Instruction`类，实现四个方法
+- 在`run/controller.py`中的`opMap`或`funcMap`中加入所写的类名
+    - 如果指令的op字段不为0，则加入`opMap`，键值为op字段的值
+    - 如果指令的op字段为0，则加入`funcMap`，键值为func字段的值
 
-### hardware
-所有需要访问的寄存器和存储器
+## 2 硬件结构
+### 2.1 寄存器与存储器
+寄存器和存储器的实现在`hardware/util.py`中，可以阅读一下
 
-## run
-### controller
-用于控制指令的执行，建设中
+### 2.2 硬件结构图示
+TODO
 
-### debugger
-用于debug，建设中
+## 3 运行与调试
+### 3.1 工具
+`run/controller.py`中有执行指令的方法，现在只能一次执行一条指令
+`run/debugger.py`中有一些方便调试的方法，包括打印寄存器和存储器、将程序加载到指令存储器等
 
-## 注意
-实现一条指令时，应该继承Instruction类，实现其中的instrDecode、execute、memAccess、writeBack方法，然后将实现的类加入controller中的opMap或funcMap中，使得这一条指令能够被执行
-
-## instruction
-### instruction
-指令类的抽象，实现某一条指令时需要实现Instruction类
-
-### nop
-nop指令，什么也不做
+### 3.2 例子
+`prog/addiu.txt`是一个程序的例子，就是把指令的编码（16进制）直接写出来，每行一条指令
+`main.py`是一个运行的例子，可以阅读一下
