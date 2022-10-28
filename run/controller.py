@@ -8,8 +8,8 @@ class Controller:
             0x000: Nop,
     }
 
-    def __init__(self):
-        self.hw = Hardware()
+    def __init__(self, hw):
+        self.hw = hw
 
     #获取指令对象
     #输入：
@@ -33,7 +33,7 @@ class Controller:
         #从指令存储器中取指令
         pc = self.hw.pc.read()
         instr = self.hw.instrMem.read(pc)
-        self.hw.instr.write(instr)
+        self.hw.pplReg[1][0].write(instr)
 
         #pc+4
         self.hw.pc.write(pc + 4)
@@ -43,7 +43,7 @@ class Controller:
     #无流水线的执行
     #效果：
     #   完整执行一条指令
-    def noPipelineRun(self):
+    def run(self):
         #取指令，获取指令对象
         instr = self.instrFetch()
         instrObj = self.getInstrObj(instr)

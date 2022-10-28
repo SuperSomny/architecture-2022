@@ -4,34 +4,24 @@ from hardware.util import Register, Memory
 class Hardware:
     def __init__(self):
         #寄存器
-        self.genRegCnt = 32     #通用寄存器数
-        self.genReg = [Register()] * self.genRegCnt #通用寄存器组
+        self.pc = Register()    #程序计数器
 
-        self.pplReg = {                             #流水线寄存器
-                #WB/IF
-                'pc': Register(),    #程序计数器
-                #IF/ID
-                'instr': Register(), #指令寄存器
-                #ID/EX
-                'rs': Register(),    #指令的rs字段[21: 25]对应寄存器的值
-                'rt': Register(),    #指令的rt字段[16: 20]对应寄存器的值
-                'rd': Register(),    #指令的rd字段[11: 15]对应寄存器的值
-                'imm': Register(),   #指令的imm字段[0: 15]
-                #EX/MA
-                'addr': Register(),  #数据存储器的地址
-                'wdata': Register(), #数据存储器的输入数据
-                #MA/WB
-                'wb': Register(),    #写回寄存器
-                }
-        self.pc = self.pplReg['pc']
-        self.instr = self.pplReg['instr']
-        self.rs = self.pplReg['rs']
-        self.rt = self.pplReg['rt']
-        self.rd = self.pplReg['rd']
-        self.imm = self.pplReg['imm']
-        self.addr = self.pplReg['addr']
-        self.wdata = self.pplReg['wdata']
-        self.wb = self.pplReg['wb']
+        #通用寄存器
+        self.genRegCnt = 32 #通用寄存器数
+        self.genReg = []    #通用寄存器组
+        for i in range(self.genRegCnt):
+            self.genReg.append(Register())
+
+        #流水线寄存器
+        #   约定：指令在第i个阶段可以读pplReg[i]中的寄存器、写pplReg[i+1]中的寄存器
+        self.pplRegCnt = 5  #流水线上每个阶段的寄存器数
+        self.stageCnt = 5   #流水线阶段数
+        self.pplReg = []    #流水线寄存器
+        for i in range(self.stageCnt):
+            stage = []
+            for j in range(self.pplRegCnt):
+                stage.append(Register())
+            self.pplReg.append(stage)
 
         #存储器
         self.instrMemSize = 1 << 32 #指令存储器字节数
@@ -44,13 +34,17 @@ class Hardware:
     #效果：
     #   对所有寄存器和存储器进行同步
     def globalSync(self):
+        #程序计数器同步
+        self.pc.sync()
+
         #通用寄存器同步
         for reg in self.genReg:
             reg.sync()
 
         #流水线寄存器同步
-        for reg in self.pplReg:
-            reg.sync()
+        for stage in self.pplReg:
+            for reg in stage:
+                reg.sync()
 
         #存储器同步
         self.instrMem.sync()
