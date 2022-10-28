@@ -23,7 +23,7 @@ class Register:
     #效果：
     #   将缓冲区中的数据写入寄存器
     def sync(self):
-        if self.buff:
+        if self.buff is not None:
             self.data = self.buff
             self.buff = None
 

@@ -1,11 +1,13 @@
 from hardware.hardware import Hardware
 from instruction.nop import Nop
+from instruction.ri.addiu import Addiu
 
 class Controller:
     opMap = {
+            0x09: Addiu,
     }
     funcMap = {
-            0x000: Nop,
+            0x00: Nop,
     }
 
     def __init__(self, hw):
@@ -18,13 +20,19 @@ class Controller:
     #   instr表示的指令类型的对象
     def getInstrObj(self, instr):
         mask = (1 << 6) - 1
-        op = (instr >> 16) & mask
+        op = (instr >> 26) & mask
         func = instr & mask
 
-        if op == 0x000:
-            return Controller.funcMap[func](self.hw)
+        if op == 0x00:
+            if func in Controller.funcMap.keys():
+                return Controller.funcMap[func](self.hw)
+            else:
+                raise Exception('instruction does not exist')
         else:
-            return Controller.opMap[op](self.hw)
+            if op in Controller.opMap.keys():
+                return Controller.opMap[op](self.hw)
+            else:
+                raise Exception('instruction does not exist')
 
     #取指令阶段
     #效果：
