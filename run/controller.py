@@ -4,10 +4,12 @@ from instruction.ri.addiu import Addiu
 
 class Controller:
     opMap = {
-            0x09: Addiu,
+        0x09: Addiu,
+        0x20: Load,
+        0x28: Store,
     }
     funcMap = {
-            0x00: Nop,
+        0x00: Nop,
     }
 
     def __init__(self, hw):
