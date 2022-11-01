@@ -1,6 +1,6 @@
 from hardware.hardware import Hardware
-from run.controller import Controller
-from run.debugger import Debugger
+from execute.controller import Controller
+from execute.debugger import Debugger
 
 hw = Hardware()
 ctrl = Controller(hw)
