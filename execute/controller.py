@@ -3,15 +3,21 @@ from instruction.nop import Nop
 from instruction.ri.addiu import Addiu
 from instruction.ldst.load import Load
 from instruction.ldst.store import Store
+from instruction.br.BEQ import Beq
+from instruction.rr.addu import Addu
+from instruction.j.j import J
 
 class Controller:
     opMap = {
         0x09: Addiu,
         0x20: Load,
         0x28: Store,
+        0x04: Beq,
+        0x02: J,
     }
     funcMap = {
         0x00: Nop,
+        0x21: Addu,
     }
 
     def __init__(self, hw):
