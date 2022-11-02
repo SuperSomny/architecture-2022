@@ -5,7 +5,7 @@ from execute.debugger import Debugger
 hw = Hardware()
 ctrl = Controller(hw)
 dbg = Debugger(hw)
-prog = 'prog/addiuTest.txt'
+prog = 'program/addiuTest.txt'
 
 dbg.loadProgram(prog)
 

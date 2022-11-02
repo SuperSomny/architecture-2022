@@ -1,25 +1,27 @@
-## 1 实现指令
-实现一条指令的步骤如下：
-- 写一个类(class)继承`instruction/instruction.py`中的`Instruction`类，实现四个方法
-- 在`execute/controller.py`中的`opMap`或`funcMap`中加入所写的类名
-    - 如果指令的op字段不为0，则加入`opMap`，键值为op字段的值
-    - 如果指令的op字段为0，则加入`funcMap`，键值为func字段的值
-- 不要忘记在`execute/controller.py`中导入所实现的类
-
-## 2 硬件结构
-### 2.1 寄存器与存储器
-寄存器和存储器的实现在`hardware/util.py`中，可以阅读一下
-
-### 2.2 硬件结构图示
+## 1 已实现的指令
+### 1.1 br型
+#### 1.1.1 beq 相等时跳转
 TODO
 
-## 3 运行与调试
-### 3.1 工具
-`execute/controller.py`中有执行指令的方法，现在只能一次执行一条指令
+### 1.2 j型
+#### 1.2.1 j 跳转
+TODO
 
-`execute/debugger.py`中有一些方便调试的方法，包括打印寄存器和存储器、将程序加载到指令存储器等
+### 1.3 rr型
+#### 1.3.1 addu 无符号加
+TODO
 
-### 3.2 例子
-`prog/addiu.txt`是一个程序的例子，就是把指令的编码（16进制）直接写出来，每行一条指令
+### 1.4 ri型
+#### 1.4.1 addiu 无符号加立即数
+TODO
 
-`main.py`是一个运行的例子，可以阅读一下
+### 1.5 ldst型
+#### 1.5.1 load 加载字节
+TODO
+
+#### 1.5.2 store 存储字节
+TODO
+
+### 1.6 其他
+#### 1.6.1 nop 空指令
+TODO

@@ -5,7 +5,7 @@ from execute.debugger import Debugger
 hw = Hardware()
 ctrl = Controller(hw)
 dbg = Debugger(hw)
-prog = 'prog/ldstTest.txt'
+prog = 'program/ldstTest.txt'
 # Addiu r1,r1,3
 # Store r1, 10(r0)
 # Load r2, 10(r0)
