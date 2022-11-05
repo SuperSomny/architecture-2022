@@ -11,7 +11,7 @@
 - 虚拟寄存器：将代码中使用的虚拟寄存器号转化为物理寄存器号，适当加入与存储器交换的指令
 - 指令重排：将指令重新排列，以消除指令之间的冲突，并**尽可能地**提高执行效率
 
-程序结构图示：TODO
+程序结构图示：（TODO）
 
 ### 1.1 中间表示转化
 #### 1.1.1 假设
@@ -46,7 +46,7 @@ loop ::= [condition, program]
 condition ::= [func, func, ..., func, branch]
 ```
 
-具体的实现在`ir/IR.py`中，可以阅读一下（TODO）
+具体的实现在`ir/ir.py`（TODO）中，可以阅读一下
 
 ### 1.2 循环展开
 #### 1.2.1 假设
@@ -91,8 +91,9 @@ condition ::= [func, func, ..., func, branch]
 
 在正确的基础上，实现者可以自行决定优化到什么程度（可以先无脑插入nop）
 
-## 2 分工
+## 2 其他事项
+### 2.1 分工
 循环展开和虚拟寄存器两个模块的联系比较紧密，而且应该是工作量相对比较小的，所以由一个人做，其他每个模块各一个人：
-- 中间表示转化：实现`ir/trans.py`中的`ir2code`和`code2ir`函数，所有代码放在`ir`目录下
-- 循环展开、虚拟寄存器：实现`unroll/unroll.py`中的`unroll`函数和`vreg`函数，所有代码放在`unroll`目录下
-- 指令重排：实现`reorder/reorder.py`中的`reorder`函数，所有代码放在`reorder`目录下
+- 中间表示转化：实现`ir/trans.py`中的`ir2code`和`code2ir`函数（TODO），所有代码放在`ir`目录下
+- 循环展开、虚拟寄存器：实现`unroll/unroll.py`中的`unroll`函数和`vreg`函数（TODO），所有代码放在`unroll`目录下
+- 指令重排：实现`reorder/reorder.py`中的`reorder`函数（TODO），所有代码放在`reorder`目录下
