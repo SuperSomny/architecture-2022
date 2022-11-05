@@ -94,6 +94,6 @@ condition ::= [func, func, ..., func, branch]
 ## 2 其他事项
 ### 2.1 分工
 循环展开和虚拟寄存器两个模块的联系比较紧密，而且应该是工作量相对比较小的，所以由一个人做，其他每个模块各一个人：
-- 中间表示转化：实现`ir/trans.py`中的`ir2code`和`code2ir`函数（TODO），所有代码放在`ir`目录下
-- 循环展开、虚拟寄存器：实现`unroll/unroll.py`中的`unroll`函数和`vreg`函数（TODO），所有代码放在`unroll`目录下
-- 指令重排：实现`reorder/reorder.py`中的`reorder`函数（TODO），所有代码放在`reorder`目录下
+- 中间表示转化：实现`ir/trans.py`中的`ir2code`和`code2ir`函数，以及`ir/ir.py`中的所有`emit`函数，所有代码放在`ir`目录下
+- 循环展开、虚拟寄存器：实现`unroll/unroll.py`中的`unroll`函数和`vreg`函数，所有代码放在`unroll`目录下
+- 指令重排：实现`reorder/reorder.py`中的`reorder`函数，所有代码放在`reorder`目录下
