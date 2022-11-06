@@ -162,8 +162,6 @@ class Beq(Condition):
         self.instrStr = 'beq r' + str(reg1) + ', r' + str(reg2)
 
     def emit(self, stream, cnt):
-
-    def emit(self, stream, cnt):
         instrStr = self.instrStr + ', loop' + str(cnt)
         stream.write(instrStr + '\n')
 

@@ -1,0 +1,8 @@
+beq r1, r2, loop1
+loop1:
+load r10, 0(r1)
+add r14, r10, 12
+store r14, 0(r1)
+addi r1, r1, 1
+bne r1, r2, out1
+out1:
