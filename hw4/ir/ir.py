@@ -105,6 +105,15 @@ class Add(AluInstr):
 
         self.instrStr = 'add r' + str(reg1) + ', r' + str(reg2) + ', ' + str(reg3)
 
+#Move
+class Move(AluInstr):
+    #move reg1, reg2
+    def __init__(self, reg1, reg2):
+        super().__init__()
+        self.rt = reg1
+        self.rs.append(reg2)
+        self.instrStr = 'move r' + str(reg1) + ', r' + str(reg2)
+
 #Addi
 class Addi(AluInstr):
     #addi reg1, reg2, imm
