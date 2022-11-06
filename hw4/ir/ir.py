@@ -1,19 +1,27 @@
 #程序类
 class Program:
     def __init__(self):
-        self.instrList = []     #指令列表，其中的元素或者是Instruction（非Condition），或者是Loop
+        self.instrList = []     #指令列表，其中的元素或者是Instruction，或者是Loop
 
     #将中间表示转化为代码并输出到文件
-    #所有标有 TODO 的emit函数都应该由中间表示转化模块的编写者来实现
     def emit(self):
         #TODO
         pass
 
 #循环类
 class Loop:
-    def __init__(self, condition, body):
-        self.condi = condition  #条件检查，是一个Instruction列表，其中有且仅有最后一项是Condition
-        self.body = body        #循环体，是一个Program
+    def __init__(self, iterator, times, body):
+        self.iter = iterator    #循环变量，是一个寄存器
+        self.times = times      #循环次数，是一个寄存器
+        self.body = body        #循环代码，是一个Program，应该有如下的形式
+        '''
+        beq i, n, out
+        loop:
+        [loop body]
+        addi i, i, 1
+        bne i, n, loop
+        out:
+        '''
 
     def emit(self):
         #TODO
@@ -112,6 +120,21 @@ class Bne(Condition):
     def __init__(self, reg1, reg2):
         #bne reg1, reg2, label
         #Bne对象的属性中不需要包含label，它应该在将中间表示转化为代码时被加上
+        super().__init__()
+
+        #去掉重复的元素
+        self.rs.append(reg1)
+        if reg1 != reg2:
+            self.rs.append(reg2)
+
+    def emit(self):
+        #TODO
+        pass
+
+#Beq
+class Beq(Condition):
+    def __init__(self, reg1, reg2):
+        #beq reg1, reg2, label
         super().__init__()
 
         #去掉重复的元素
