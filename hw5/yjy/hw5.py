@@ -216,7 +216,7 @@ if __name__ == '__main__':
         if written:
             for i in range(written):
                 Comp_list.append(WB_list[i])
-                Uncomp_list.remove(ins_list[WB_list[i][0]])  # 一条指令结束后更新hazard表
+                Uncomp_list.remove(ins_list[WB_list[i][0]])  # 一条指令结束后更新hazards表
                 hazards = analyze_hazard(Uncomp_list)
                 WB_list.remove(WB_list[i])
 

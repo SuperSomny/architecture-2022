@@ -231,3 +231,4 @@ class Beq(Condition):
         stream.write(instrStr + '\n')
 
         return cnt
+

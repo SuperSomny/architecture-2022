@@ -1,5 +1,5 @@
 
-# IS表的元素
+# IS表中的元素
 class Ins_Status:
     def __init__(self):
         self.issue = 'None'

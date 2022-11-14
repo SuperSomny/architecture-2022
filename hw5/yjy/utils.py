@@ -3,8 +3,8 @@ def analyze_hazard(ins_list):
     hazard = {'RAW': [],
               'WAR': [],
               'WAW': []}
-    write = []  # 记录所有写操作
-    read = []  # 记录所有读操作
+    write = []  # 记录所有的写操作
+    read = []  # 记录所有的读操作
     # 分析数据相关性
     for instr in ins_list:  # 标记所有读取和写入的寄存器
         if instr.rt is not None:
