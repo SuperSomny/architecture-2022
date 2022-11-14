@@ -24,8 +24,6 @@ ins_list = [Load(reg1='F6', offset=34, reg2='R2'),
             Div(reg1='F10', reg2='F0', reg3='F6'),
             Add(reg1='F6', reg2='F8', reg3='F2')]
 
-hazards = analyze_hazard(ins_list)
-
 
 # 指令流出阶段   避免结构冲突和WAR冲突
 def Issue(ins_num):
@@ -50,14 +48,14 @@ def Issue(ins_num):
 
         # 源操作数寄存器是否就绪
         if FUS_item.fj != 'None':
-            if RS_ready(FUS_item.qj, RSS):
+            if RS_ready(FUS_item.fj, RSS):
                 FUS_item.rj = 'Yes'
             else:
                 FUS_item.rj = 'No'
         else:
             FUS_item.rj = 'None'
 
-        if RS_ready(FUS_item.qk, RSS):
+        if RS_ready(FUS_item.fk, RSS):
             FUS_item.rk = 'Yes'
         else:
             FUS_item.rk = 'No'
@@ -78,21 +76,27 @@ def Read_Operands(ins_num, fu):
     if FUS[fu].rj != 'No' and FUS[fu].rk != 'No':  # rj和rk就绪，读操作数
         # 检查RAW冲突
         if FUS[fu] not in hazards['RAW']:
-            if FUS[fu].rj != 'None':
-                FUS[fu].rj = 'No'
-            if FUS[fu].rk != 'None':
-                FUS[fu].rk = 'No'
-            FUS[fu].qj = 'None'
-            FUS[fu].qk = 'None'
+            # if FUS[fu].rj != 'None':
+            #     FUS[fu].rj = 'No'
+            # if FUS[fu].rk != 'None':
+            #     FUS[fu].rk = 'No'
+            # FUS[fu].qj = 'None'
+            # FUS[fu].qk = 'None'
             return 'Success'
     else:
         return 'Wait'
 
 
 # 执行阶段 无需对表的任何操作
-def Exectuion(ins_num):
+def Exectuion(ins_num, fu):
     # 执行阶段可能需要若干个周期
     IS[ins_num].comp = clock
+    if FUS[fu].rj != 'None':
+        FUS[fu].rj = 'No'
+    if FUS[fu].rk != 'None':
+        FUS[fu].rk = 'No'
+    FUS[fu].qj = 'None'
+    FUS[fu].qk = 'None'
     if isinstance(ins_list[ins_num], Mul):
         return 10
     elif isinstance(ins_list[ins_num], Div):
@@ -150,6 +154,7 @@ def print_tables():
 if __name__ == '__main__':
     # 时钟
     clock = 1
+    Uncomp_list = ins_list.copy()
     # 初始阶段所有指令都等待Issue
     IF_list = [i for i in range(len(ins_list))]
     ID_list = []  # ID EX WB的元素都是元组 (指令,功能部件)
@@ -157,6 +162,8 @@ if __name__ == '__main__':
     WB_list = []
     Comp_list = []
 
+    hazards = analyze_hazard(Uncomp_list)
+    ex_clock = -1
     # 执行直到所有任务完成
     while len(Comp_list) < len(ins_list):
         print('################   CLOCK = %d  ################ ' % clock)
@@ -175,7 +182,8 @@ if __name__ == '__main__':
                 fetched = True
 
         if len(EX_list) != 0:
-            ex_clock = Exectuion(EX_list[0][0])
+            # 启动局部计数器
+            ex_clock = Exectuion(EX_list[0][0], EX_list[0][1])
             clock += ex_clock - 1
             executed = True
 
@@ -195,7 +203,10 @@ if __name__ == '__main__':
             EX_list.remove(EX_list[0])
         if written:
             Comp_list.append(WB_list[0])
+            Uncomp_list.remove(ins_list[WB_list[0][0]])  # 一条指令结束后更新hazard表
+            hazards = analyze_hazard(Uncomp_list)
             WB_list.remove(WB_list[0])
 
         clock += 1
+
         print_tables()
