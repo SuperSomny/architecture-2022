@@ -72,7 +72,6 @@ def Issue(ins_num):
 
 # 读操作数阶段   避免RAW冲突
 def Read_Operands(ins_num, fu):
-
     if (FUS[fu].rj != 'No') and (FUS[fu].rk != 'No'):  # rj和rk就绪，读操作数
         # 检查RAW冲突
         if FUS[fu] not in hazards['RAW']:
@@ -89,9 +88,8 @@ def Read_Operands(ins_num, fu):
 
 
 # 执行阶段 无需对表的任何操作
-def Exectuion(ins_num, fu):
-    # 执行阶段可能需要若干个周期
-    IS[ins_num].comp = clock
+def Execution(ins_num, fu):
+    # 返回需要的时钟周期数
     if FUS[fu].rj != 'None':
         FUS[fu].rj = 'No'
     if FUS[fu].rk != 'None':
@@ -102,7 +100,7 @@ def Exectuion(ins_num, fu):
         return 10
     elif isinstance(ins_list[ins_num], Div):
         return 40
-    elif isinstance(ins_list[ins_num], Add):
+    elif isinstance(ins_list[ins_num], Add) or isinstance(ins_list[ins_num], Sub):
         return 2
     else:
         return 1
@@ -112,10 +110,10 @@ def Exectuion(ins_num, fu):
 def Write_Resut(ins_num, fu):
     # 在FUS表中的每一条指令进行逐一查看，如果不存在任意一条指令的源操作数寄存器与当前指令的目的操作数寄存器相同 且对应的寄存器处于读就绪状态
     for _, item in FUS.items():
-        if (item.fi == ins_list[ins_num].rs[0]) and item.rj == 'Yes':
+        if (item.fj == ins_list[ins_num].rt) and item.rj == 'Yes':
             return 'Wait'
         try:
-            if (item.fi == ins_list[ins_num].rs[1]) and item.rk == 'Yes':
+            if (item.fk == ins_list[ins_num].rt) and item.rk == 'Yes':
                 return 'Wait'
         finally:
             pass
@@ -172,53 +170,76 @@ if __name__ == '__main__':
     Comp_list = []
 
     hazards = analyze_hazard(Uncomp_list)
-    ex_clock = -1
+    ex_clock_list = {}
     # 执行直到所有任务完成
     while len(Comp_list) < len(ins_list):
         print('################   CLOCK = %d  ################ ' % clock)
         fu = ''
-        issued = 0
-        fetched = 0
-        executed = 0
-        written = 0
+        issued = False
+        fetched = []
+        executed = []
+        written = []
         if len(IF_list) != 0:  # 发出指令，若成功，在IF中去除该指令，在ID中添加该指令
             fu = Issue(IF_list[0])
             if fu != 'Wait':
-                issued += 1
+                issued = True
 
         if len(ID_list) != 0:
             for i in range(len(ID_list)):
                 if Read_Operands(ID_list[i][0], ID_list[i][1]) == 'Success':  # 取操作数，若成功，在ID中去除该指令，在EX中添加该指令
-                    fetched += 1
+                    fetched.append(ID_list[i])
 
         if len(EX_list) != 0:
-            ex_clock = Exectuion(EX_list[0][0], EX_list[0][1])
-            clock += ex_clock - 1
-            executed += 1
+            for i in range(len(EX_list)):
+                # 如果该指令没有在“正在运行的指令”字典中，启动局部计数器
+                try:
+                    if ex_clock_list[EX_list[i][0]] is not None:
+                        pass
+                except:
+                    ex_clock = Execution(EX_list[i][0], EX_list[i][1])
+                    if ex_clock == 1:  # 如果指令只需1个周期完成，则不需要计数器
+                        IS[EX_list[i][0]].comp = clock
+                        executed.append(EX_list[i])
+                    else:
+                        ex_clock_list[EX_list[i][0]] = ex_clock - 1  # 该次循环结束后已经过一个周期
+
+            # 若某条指令的计数器终止，则认为已完成
+            for i in range(len(EX_list)):
+                try:
+                    if ex_clock_list[EX_list[i][0]] == 0:
+                        IS[EX_list[i][0]].comp = clock
+                        executed.append(EX_list[i])
+                        ex_clock_list.pop(EX_list[i][0])
+                except:
+                    pass
 
         if len(WB_list) != 0:
-            if Write_Resut(WB_list[0][0], WB_list[0][1]) == 'Success':
-                written += 1
+            for i in range(len(WB_list)):
+                if Write_Resut(WB_list[i][0], WB_list[i][1]) == 'Success':
+                    written.append(WB_list[i])
 
         # 统计该周期完成的动作，并且更新下一步动作
         if issued:
-            for i in range(issued):
-                ID_list.append((IF_list[i], fu))
-                IF_list.remove(IF_list[i])
-        if fetched:
-            for i in range(fetched):
-                EX_list.append(ID_list[i])
-                ID_list.remove(ID_list[i])
-        if executed:
-            for i in range(executed):
-                WB_list.append(EX_list[i])
-                EX_list.remove(EX_list[i])
-        if written:
-            for i in range(written):
-                Comp_list.append(WB_list[i])
-                Uncomp_list.remove(ins_list[WB_list[i][0]])  # 一条指令结束后更新hazard表
-                hazards = analyze_hazard(Uncomp_list)
-                WB_list.remove(WB_list[i])
+            ID_list.append((IF_list[0], fu))
+            IF_list.remove(IF_list[0])
+        if len(fetched):
+            for item in fetched:
+                EX_list.append(item)
+                ID_list.remove(item)
+        if len(executed):
+            for item in executed:
+                WB_list.append(item)
+                EX_list.remove(item)
+        if len(written):
+            for item in written:
+                Comp_list.append(item)
+                Uncomp_list.remove(ins_list[item[0]])  # 一条指令结束后更新hazard表
+                WB_list.remove(item)
+            hazards = analyze_hazard(Uncomp_list)
 
         clock += 1
+        for key, value in ex_clock_list.items():  # 局部时钟-1
+            print('局部时钟：', end=' ')
+            print(ins_list[key], value)
+            ex_clock_list[key] -= 1
         print_tables()
