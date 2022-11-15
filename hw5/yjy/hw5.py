@@ -110,10 +110,10 @@ def Execution(ins_num, fu):
 def Write_Resut(ins_num, fu):
     # 在FUS表中的每一条指令进行逐一查看，如果不存在任意一条指令的源操作数寄存器与当前指令的目的操作数寄存器相同 且对应的寄存器处于读就绪状态
     for _, item in FUS.items():
-        if (item.fi == ins_list[ins_num].rs[0]) and item.rj == 'Yes':
+        if (item.fj == ins_list[ins_num].rt) and item.rj == 'Yes':
             return 'Wait'
         try:
-            if (item.fi == ins_list[ins_num].rs[1]) and item.rk == 'Yes':
+            if (item.fk == ins_list[ins_num].rt) and item.rk == 'Yes':
                 return 'Wait'
         finally:
             pass
