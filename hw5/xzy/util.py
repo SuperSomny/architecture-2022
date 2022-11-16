@@ -35,5 +35,5 @@ class Instruction:
         self.dest = dest            #目的寄存器号
         self.src1Valid = src1Valid  #源寄存器1是否有效
         self.src1 = src1            #源寄存器号1
-        self.src2Valid = src1Valid  #源寄存器2是否有效
+        self.src2Valid = src2Valid  #源寄存器2是否有效
         self.src2 = src2            #源寄存器号2

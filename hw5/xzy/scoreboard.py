@@ -39,7 +39,7 @@ class Scoreboard:
     def __init__(self, regCnt, fuCnt):
         self.regCnt = regCnt
         self.fuCnt = fuCnt
-        self.regResStat = [Register(0) for i in range(regCnt)]                      #寄存器结果状态表
+        self.regResStat = [Register(fuCnt) for i in range(regCnt)]                  #寄存器结果状态表
         self.funcUnitStat = [Scoreboard.FuncUnitItem(fuCnt) for i in range(fuCnt)]  #功能部件状态表
 
     #同步
@@ -86,7 +86,7 @@ class Scoreboard:
             fuItem.ready2.write(not self.fuValid(fu2))
 
         #记录结果信息
-        fuItem.destValid.write(instr.dest)
+        fuItem.destValid.write(instr.destValid)
         if instr.destValid:
             fuItem.dest.write(instr.dest)
             self.regResStat[instr.dest].write(instr.fu)
@@ -160,7 +160,77 @@ class Scoreboard:
                     f.ready2.write(True)
 
             #结果已写回
-            self.regResStat[fuItem.dest.read()].write(0)
+            self.regResStat[fuItem.dest.read()].write(self.fuCnt)
 
         #功能部件不再被占用
         fuItem.busy.write(False)
+        fuItem.src1Valid.write(False)
+        fuItem.src2Valid.write(False)
+        fuItem.destValid.write(False)
+
+        return True
+
+    #打印
+    def dump(self):
+        #打印功能部件状态表
+        print('{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}'.format(
+            'busy',
+            'dest',
+            'src1',
+            'src2',
+            'fu1',
+            'fu2',
+            'ready1',
+            'ready2'
+            ))
+        for item in self.funcUnitStat:
+            busy = item.busy.read()
+            if item.destValid.read():
+                dest = item.dest.read()
+            else:
+                dest = ''
+
+            src1 = item.src1.read()
+            fu1 = item.fu1.read()
+            if not self.fuValid(fu1):
+                fu1 = ''
+            ready1 = item.ready1.read()
+            if not item.src1Valid.read():
+                src1 = ''
+                fu1 = ''
+                ready1 = ''
+
+            src2 = item.src2.read()
+            fu2 = item.fu2.read()
+            if not self.fuValid(fu2):
+                fu2 = ''
+            ready2 = item.ready2.read()
+            if not item.src2Valid.read():
+                src2 = ''
+                fu2 = ''
+                ready2 = ''
+
+            print('{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}'.format(
+                busy,
+                dest,
+                src1,
+                src2,
+                fu1,
+                fu2,
+                ready1,
+                ready2
+                ))
+        print('')
+
+        #打印寄存器结果状态表
+        for i in range(self.regCnt):
+            if i % 2 == 0:
+                print('F{:<3}'.format(i), end = ' ')
+        print('')
+        for i in range(self.regCnt):
+            if i % 2 == 0:
+                fu = self.regResStat[i].read()
+                if not self.fuValid(fu):
+                    fu = ''
+                print('{:<4}'.format(fu), end = ' ')
+        print('')

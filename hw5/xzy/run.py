@@ -83,5 +83,13 @@ class Runner:
             self.singleStepRun()
 
     def dump(self):
+        print('{:<10}{:<10}{:<10}{:<10}'.format('issue', 'read', 'execute', 'write'))
         for item in self.instrStat:
-            print('{:3} {:3} {:3} {:3}\n'.format(item.issue, item.read, item.execute, item.write))
+            print('{:<10}{:<10}{:<10}{:<10}'.format(
+                item.issue,
+                item.read,
+                item.execute,
+                item.write
+                ))
+        print('')
+        self.scoreboard.dump()

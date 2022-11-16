@@ -10,5 +10,7 @@ program.append(Instruction('div', 3, True, 10, True, 0, True, 6))
 program.append(Instruction('add', 2, True, 6, True, 8, True, 2))
 
 runner = Runner(program)
-runner.run(1)
+runner.run(70)
 runner.dump()
+print('')
+print('clk: {}'.format(runner.clock))
