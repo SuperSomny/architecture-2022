@@ -51,19 +51,21 @@ class Register:
 class FuncUnit:
     def __init__(self):
         self.clk = 0
+        self.op = ''
         self.res = 0
         return
 
     def copy(self):
         fu = FuncUnit()
         fu.clk = self.clk
+        fu.op = self.op
         fu.res = self.res
         return fu
 
 #保留站
 class ReservStation:
     def __init__(self):
-        self.busy = 0
+        self.busy = False
         self.op = ''
         self.val1 = 0
         self.src1 = 0

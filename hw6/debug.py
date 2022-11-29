@@ -1,6 +1,9 @@
 from architecture import *
 
 def dump(arch):
+    print('{:<6}{:<6}'.format('clk', 'bus'))
+    print('{:<6}{:<6}'.format(arch.clk, arch.bus))
+    print('')
     dumpPC(arch)
     print('')
     dumpIntReg(arch)
@@ -75,8 +78,11 @@ def dumpRS(arch, offset):
     return
 
 def dumpFU(arch, fuOff, rsOff, rsSize):
-    print('{:<6}{:<6}'.format('clk', 'res'))
-    print('{:<6}{:<6}'.format(arch.fu[fuOff].clk, arch.fu[fuOff].res))
+    print('{:<6}{:<6}{:<6}'.format('clk', 'op', 'res'))
+    print('{:<6}{:<6}{:<6}'.format(
+        arch.fu[fuOff].clk,
+        arch.fu[fuOff].op,
+        arch.fu[fuOff].res))
     print('{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}'.format(
         'busy',
         'op',
