@@ -17,6 +17,39 @@ def dump(arch):
     dumpMulUnit(arch)
     print('')
     dumpMemUnit(arch)
+    print('')
+    dumpDataMem(arch)
+    return
+
+def getInstr(op, dest, op1, op2, imm):
+    instr = Instruction()
+    instr.op = op
+    instr.dest = dest
+    instr.op1 = op1
+    instr.op2 = op2
+    instr.imm = imm
+    return instr
+
+def program(arch, program):
+    arch1 = arch.copy()
+    print('{:<6}{:<6}{:<6}{:<6}{:<6}'.format(
+        'op',
+        'dest',
+        'op1',
+        'op2',
+        'imm'
+        ))
+    for i in range(len(program)):
+        instr = program[i]
+        print('{:<6}{:<6}{:<6}{:<6}{:<6}'.format(
+            instr.op,
+            instr.dest,
+            instr.op1,
+            instr.op2,
+            instr.imm
+            ))
+        arch1.mem[INSTR_MEM_OFF + i] = instr
+    return arch1
 
 def valid(check, data):
     if check:
@@ -45,6 +78,7 @@ def dumpReg(arch, offset, size):
         src = valid(src, src)
         print('{:<4}'.format(src), end = '')
     print('')
+    return
 
 def dumpIntReg(arch):
     print('integer registers:')
@@ -124,5 +158,15 @@ def dumpMemUnit(arch):
         src = arch.reg[BUF_REG_OFF + i].src
         src = valid(src, src)
         print('{:<6}'.format(src), end = '')
+    print('')
+    return
+
+def dumpDataMem(arch):
+    print('data memory:')
+    for i in range(DATA_MEM_SIZE):
+        print('{:<4}'.format(i), end = '')
+    print('')
+    for i in range(DATA_MEM_SIZE):
+        print('{:<4}'.format(arch.mem[DATA_MEM_OFF + i]), end = '')
     print('')
     return

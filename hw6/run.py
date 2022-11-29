@@ -5,7 +5,8 @@ def run(arch):
     arch1 = Architecture()
     arch1.clk = arch.clk + 1
 
-    arch1.reg[PC_REG_OFF] = runPC(arch, i)
+    arch1.reg[PC_REG_OFF] = runPC(arch)
+    '''
     for i in range(INT_REG_SIZE):
         arch1.reg[INT_REG_OFF + i] = runIntReg(arch, i)
     for i in range(FP_REG_SIZE):
@@ -29,11 +30,53 @@ def run(arch):
         arch1.reg[BUF_REG_OFF + i] = runBufReg(arch, i)
 
     arch1.bus = runBus(arch)
+    '''
 
     return arch1
 
 def runPC(arch):
-    pass
+    pc = Register()
+
+    if not arch.reg[PC_REG_OFF].src:
+        instr = fetch(arch)
+        if not instr:
+            print('check1')
+            pc.val = arch.reg[PC_REG_OFF].val
+            pc.src = 0
+        else:
+            if instr.op == 'addi' or instr.op == 'jump':
+                offset = INT_RS_OFF
+                size = INT_RS_SIZE
+            elif instr.op == 'fadd':
+                offset = ADD_RS_OFF
+                size = ADD_RS_SIZE
+            elif instr.op == 'fmul':
+                offset = MUL_RS_OFF
+                size = MUL_RS_SIZE
+            elif instr.op == 'load' or instr.op == 'store':
+                offset = MEM_RS_OFF
+                size = MEM_RS_SIZE
+
+            if full(arch, offset, size):
+                print('check2')
+                pc.val = arch.reg[PC_REG_OFF].val
+                pc.src = 0
+            else:
+                pc.val = arch.reg[PC_REG_OFF].val + 1
+                if instr.op == 'jump':
+                    pc.src = INT_RS_OFF
+                else:
+                    pc.src = 0
+    elif arch.fu[INT_FU_OFF].clk:
+        print('check3')
+        pc.val = arch.reg[PC_REG_OFF].val
+        pc.src = arch.reg[PC_REG_OFF].src
+    else:
+        print('check4')
+        pc.val = arch.fu[INT_FU_OFF].res
+        pc.src = 0
+
+    return pc
 
 def runIntReg(arch, i):
     pass
@@ -73,3 +116,12 @@ def runBufReg(arch, i):
 
 def runBus(arch, i):
     pass
+
+def fetch(arch):
+    return arch.mem[INSTR_MEM_OFF + arch.reg[PC_REG_OFF].val]
+
+def full(arch, offset, size):
+    for i in range(size):
+        if not arch.rs[offset + i].busy:
+            return False
+    return True
