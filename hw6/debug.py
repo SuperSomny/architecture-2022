@@ -1,8 +1,7 @@
 from architecture import *
 
 def dump(arch):
-    print('{:<6}{:<6}'.format('clk', 'bus'))
-    print('{:<6}{:<6}'.format(arch.clk, arch.bus))
+    dumpClk(arch)
     print('')
     dumpPC(arch)
     print('')
@@ -56,6 +55,11 @@ def valid(check, data):
         return data
     else:
         return ''
+
+def dumpClk(arch):
+    print('{:<6}{:<6}'.format('clk', 'bus'))
+    print('{:<6}{:<6}'.format(arch.clk, arch.bus))
+    return
 
 def dumpPC(arch):
     print('pc:\n{:<6}{:<6}'.format('value', arch.reg[PC_REG_OFF].val), end = '')

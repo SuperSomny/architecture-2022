@@ -1,5 +1,5 @@
 from architecture import *
-from debug import dump, getInstr, program
+from debug import *
 from run import run
 
 arch = Architecture()
@@ -12,6 +12,8 @@ prog = [
         ]
 arch = program(arch, prog)
 print('')
-for i in range(2):
+for i in range(6):
     arch = run(arch)
-dump(arch)
+dumpClk(arch)
+print('')
+dumpPC(arch)

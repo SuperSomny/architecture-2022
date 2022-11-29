@@ -3,6 +3,10 @@ from architecture import *
 #执行一个周期
 def run(arch):
     arch1 = Architecture()
+
+    for i in range(INSTR_MEM_SIZE):
+        arch1.mem[INSTR_MEM_OFF + i] = arch.mem[INSTR_MEM_OFF + i]
+
     arch1.clk = arch.clk + 1
 
     arch1.reg[PC_REG_OFF] = runPC(arch)
@@ -37,49 +41,38 @@ def run(arch):
 def runPC(arch):
     pc = Register()
 
-    if not arch.reg[PC_REG_OFF].src:
-        instr = fetch(arch)
-        if not instr:
-            print('check1')
-            pc.val = arch.reg[PC_REG_OFF].val
-            pc.src = 0
-        else:
-            if instr.op == 'addi' or instr.op == 'jump':
-                offset = INT_RS_OFF
-                size = INT_RS_SIZE
-            elif instr.op == 'fadd':
-                offset = ADD_RS_OFF
-                size = ADD_RS_SIZE
-            elif instr.op == 'fmul':
-                offset = MUL_RS_OFF
-                size = MUL_RS_SIZE
-            elif instr.op == 'load' or instr.op == 'store':
-                offset = MEM_RS_OFF
-                size = MEM_RS_SIZE
+    if issue(arch):
+        pc.val = arch.reg[PC_REG_OFF].val + 1
 
-            if full(arch, offset, size):
-                print('check2')
-                pc.val = arch.reg[PC_REG_OFF].val
-                pc.src = 0
-            else:
-                pc.val = arch.reg[PC_REG_OFF].val + 1
-                if instr.op == 'jump':
-                    pc.src = INT_RS_OFF
-                else:
-                    pc.src = 0
-    elif arch.fu[INT_FU_OFF].clk:
-        print('check3')
-        pc.val = arch.reg[PC_REG_OFF].val
-        pc.src = arch.reg[PC_REG_OFF].src
-    else:
-        print('check4')
+        instr = fetch(arch)
+        if instr.op == 'jump':
+            pc.src = INT_RS_OFF
+        else:
+            pc.src = arch.reg[PC_REG_OFF].src
+    elif arch.reg[PC_REG_OFF].src and not arch.fu[INT_FU_OFF].clk:
         pc.val = arch.fu[INT_FU_OFF].res
         pc.src = 0
+    else:
+        pc.val = arch.reg[PC_REG_OFF].val
+        pc.src = arch.reg[PC_REG_OFF].src
 
     return pc
 
 def runIntReg(arch, i):
-    pass
+    reg = Register()
+
+    fuOff = writeReg(arch, INT_REG_OFF + i)
+    if fuOff:
+        reg.val = arch.fu[fuOff].res
+    else:
+        reg.val = arch.reg[INT_REG_OFF + i].val
+
+    rsOff = issue(arch)
+    if rsOff:
+        instr = fetch(arch)
+
+        if instr.op == 'addi':
+            #TODO
 
 def runFpReg(arch, i):
     pass
@@ -117,11 +110,40 @@ def runBufReg(arch, i):
 def runBus(arch, i):
     pass
 
+def issue(arch):
+    if not arch.reg[PC_REG_OFF].src:
+        instr = fetch(arch)
+        if instr:
+            rsMap = {
+                    'addi': (INT_RS_OFF, INT_RS_SIZE),
+                    'jump': (INT_RS_OFF, INT_RS_SIZE),
+                    'fadd': (ADD_RS_OFF, ADD_RS_SIZE),
+                    'fmul': (MUL_RS_OFF, MUL_RS_SIZE),
+                    'load': (MEM_RS_OFF, MEM_RS_SIZE),
+                    'store': (MEM_RS_OFF, MEM_RS_SIZE)
+                    }
+            offset, size = rsMap[instr.op]
+            return first(arch, offset, size):
+    return 0
+
 def fetch(arch):
     return arch.mem[INSTR_MEM_OFF + arch.reg[PC_REG_OFF].val]
 
-def full(arch, offset, size):
+def first(arch, offset, size):
     for i in range(size):
         if not arch.rs[offset + i].busy:
-            return False
-    return True
+            return offset + i
+    return 0
+
+def writeReg(arch, i):
+    src = arch.reg[i].src
+    if src == INT_RS_OFF:
+        return INT_FU_OFF
+    elif src >= ADD_RS_OFF and src < ADD_RS_OFF + ADD_RS_SIZE:
+        return ADD_FU_OFF
+    elif src >= MUL_RS_OFF and src < MUL_RS_OFF + MUL_RS_SIZE:
+        return MUL_FU_OFF
+    elif src >= MEM_RS_OFF and src < MEM_RS_OFF + MEM_RS_SIZE:
+        return MEM_FU_OFF
+    else:
+        return 0
